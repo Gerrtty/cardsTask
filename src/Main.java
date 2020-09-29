@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,28 +34,22 @@ public class Main {
         File[] folderEntries = folder.listFiles();
 
         for (File picture : folderEntries) {
-//            System.out.println(picture.getName());
             BufferedImage img = ImageIO.read(picture);
 
             BufferedImage img1 = img.getSubimage(137, img.getHeight() - img.getHeight() / 2, 360, 90);
 
-            String outS = "";
+            String outS = picture.getName() + " - ";
 
             for (int i = 0; i < 5; i++) {
                 BufferedImage img2 = img1.getSubimage(i * (img1.getWidth() / 5), 0, (img1.getWidth() / 5), img1.getHeight());
 
                 BufferedImage info = img2.getSubimage(5, 0, img2.getWidth() / 2, img2.getHeight() / 2 + 10);
                 BufferedImage n = img2.getSubimage(0, 32, img2.getWidth(), img2.getHeight() - 32);
-                File fileN = new File("n.png");
-                ImageIO.write(n, "png", fileN);
 
                 BufferedImage num = info.getSubimage(4, 5, info.getWidth() - 4, 30);
-                File fileNum = new File("num.png");
+                Figure figure = new Figure(n);
 
-                ImageIO.write(num, "png", fileNum);
-                Figure figure = new Figure("n");
-
-                Figure nF = new Figure("num");
+                Figure nF = new Figure(num);
 
                 HashMap<String, Integer> mapM = new HashMap<>();
                 HashMap<String, Integer> mapN = new HashMap<>();
@@ -95,7 +90,12 @@ class Figure {
     private int x, y;
 
     protected Figure(String name) throws IOException {
-        BufferedImage image = ImageIO.read(new File(name +  ".png"));
+        URL imageUrl = ClassLoader.getSystemResource(name + ".png");
+        BufferedImage image = ImageIO.read(imageUrl);
+        create(image);
+    }
+
+    private void create(BufferedImage image) {
         input = new int[image.getHeight()][image.getWidth()];
         x = image.getHeight(); y = image.getWidth();
 
@@ -107,6 +107,10 @@ class Figure {
                 else input[i][j] = 1;
             }
         }
+    }
+
+    protected Figure(BufferedImage image) throws IOException {
+        create(image);
     }
 
     protected int getDiff(Figure figure2) {
